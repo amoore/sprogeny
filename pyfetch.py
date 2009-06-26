@@ -5,11 +5,11 @@ from SOAPpy.Types import *
 import serial
 
 class RR(dict):
-    def __init__(self):
+    def __init__(self, username, password):
         self.wsdl_file = 'rr.wsdl'
         self.auth_info = { 'appKey'   : '48566289',
-                           'username' : 'amoore',
-                           'password' : 'thisisnotmypassword',
+                           'username' : username,
+                           'password' : password,
                            'version'  : '3',
                            'style'    : 'rpc',
                  }
@@ -250,7 +250,7 @@ class Sprogeny(dict):
                 talkgroup_list = rr.get_trs_talkgroups(sid, '', '', scanner.afs_to_dec(talkgroup))
                 if len(talkgroup_list) != 1:
                     raise EnvironmentError( 'did not get exactly one talkgroup from rr when we expected to. received: %s'
-                                            % ( len(talkgroup_list) )
+                                            % ( len(talkgroup_list) ) )
                 talkgroup = talkgroup_list.pop()
                 scanlist_id = "%s%s" % ( scanner.number_to_letter(list_counter), talkgroup_counter )
                 scanner.set_talkgroup( bank_id, scanlist_id, talkgroup['tgDec'] )
@@ -270,8 +270,14 @@ class Sprogeny(dict):
             
 if __name__ == '__main__':
     import sys
+    import ConfigParser
 
-    rr = RR()
+    config = ConfigParser.ConfigParser()
+    config.read('sprogeny.cfg')
+
+    username = config.get('radioreference', 'username' )
+    password = config.get('radioreference', 'password' )
+    rr = RR( username, password )
     wsdl = rr.connect_to_wsdl()
 
     scanner = BC296D()
