@@ -254,16 +254,6 @@ class Sprogeny(dict):
                 scanner.set_talkgroup_tag( bank_id, scanlist_id, talkgroup['tgDescr'] )
 
                 
-
-
-
-
-        #         cats = rr.get_trs_talkgroup_cats(sid)
-        #         for scanlist_id in range(1,3):
-        #             for location_id in range(1,4):
-        #                 scanner.get_talkgroup(1, scanlist_id, location_id)
-        
-
             
 if __name__ == '__main__':
     import sys
