@@ -53,8 +53,6 @@ class RR(dict):
         if self.verbose >= 2:
             for cat in talkgroup:
                 print cat
-                # print '%s: %s' % ( cat['tgCid'], cat['tgCname'] )
-                pass
         return talkgroup
 
     def pritty_print_trs(self, sid):
