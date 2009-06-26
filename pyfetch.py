@@ -85,6 +85,23 @@ class Scanner(dict):
     def close(self):
         self.device.close()
 
+    def dump_to_yaml(self, filename):
+        import yaml
+
+        config = []
+        for bank in range(10):
+            config.append({})
+            config[bank]['bank'] = bank
+            config[bank]['label'] = self.get_bank_tag(bank)
+            config[bank]['scanlists'] = []
+            for scanlist_id in range(10):
+                scanlist = {}
+                scanlist['label'] = self.get_scanlist_tag(bank, scanlist_id)
+                config[bank]['scanlists'].append(scanlist)
+
+        stream = file(filename, 'w')
+        yaml.dump(config, stream)
+
     def mode(self):
         modeline = self.raw_command('MD')
         return modeline
@@ -418,4 +435,5 @@ if __name__ == '__main__':
                                    ]
                     }    
 
-    sprogeny.populate_bank_from_rr(bank_config)
+    # sprogeny.populate_bank_from_rr(bank_config)
+    scanner.dump_to_yaml('scanner.yml')
