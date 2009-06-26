@@ -161,6 +161,32 @@ class BC296D(Scanner):
             raise EnvironmentError('unable to set_bank_tag')
         return new_bank_tag
 
+    def get_scanlist_tag(self, bank_id, scanlist_id):
+        scanlistline = self.raw_command('TA L %s %s' % ( self.number_to_letter(bank_id),
+                                                         self.number_to_letter(scanlist_id) ) )
+        match = re.search("TA\sL\s\w\s\w\s([\w\s]+)", scanlistline)
+        if match is not None:
+            if match.group(1):
+                return match.group(1)
+            else:
+                return None
+        else:
+            return None
+
+    def set_scanlist_tag(self, bank_id, scanlist_id, scanlist_tag):
+        scanlist_tag = scanlist_tag[0:15].strip()
+        ok = self.raw_command('TA L %s %s %s' % ( self.number_to_letter(bank_id),
+                                                  self.number_to_letter(scanlist_id),
+                                                  scanlist_tag) )
+        if ok != 'OK':
+            raise EnvironmentError('unable to set_scanlist_tag')
+        new_scanlist_tag = self.get_scanlist_tag(bank_id, scanlist_id)
+        if new_scanlist_tag != scanlist_tag:
+            if self.verbose >= 2:
+                print 'old: %s, new: %s' % (scanlist_tag, new_scanlist_tag)
+            raise EnvironmentError('unable to set_scanlist_tag')
+        return new_scanlist_tag
+
     def get_talkgroup(self, bank_id, scanlist_id):
         talkgroup = self.raw_command('TG %s %s' % ( self.number_to_letter(bank_id),
                                                     scanlist_id ) )
@@ -238,6 +264,7 @@ class Sprogeny(dict):
             id_list = foo[list_counter]
             if id_list['label'] == '':
                 continue
+            scanner.set_scanlist_tag( bank_id, list_counter, id_list['label'] )
             for talkgroup_counter in range( len(id_list['talkgroups']) ):
                 bar = id_list['talkgroups']
                 talkgroup = bar[talkgroup_counter]
@@ -251,8 +278,8 @@ class Sprogeny(dict):
                 talkgroup = talkgroup_list.pop()
                 scanlist_id = "%s%s" % ( scanner.number_to_letter(list_counter), talkgroup_counter )
                 scanner.set_talkgroup( bank_id, scanlist_id, talkgroup['tgDec'] )
-                scanner.set_talkgroup_tag( bank_id, scanlist_id, talkgroup['tgDescr'] )
-
+                # scanner.set_talkgroup_tag( bank_id, scanlist_id, talkgroup['tgDescr'] )
+                scanner.set_talkgroup_tag( bank_id, scanlist_id, talkgroup['tgAlpha'] )
                 
             
 if __name__ == '__main__':
