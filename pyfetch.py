@@ -6,7 +6,7 @@ import serial
 
 class RR(dict):
     def __init__(self):
-        self.wsdl_file = 'rr2.wsdl'
+        self.wsdl_file = 'rr.wsdl'
         self.auth_info = { 'appKey'   : '48566289',
                            'username' : 'amoore',
                            'password' : 'thisisnotmypassword',
