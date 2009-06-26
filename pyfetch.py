@@ -85,18 +85,6 @@ class Scanner(dict):
     def close(self):
         self.device.close()
 
-    def dump_usd(self):
-        usd = ''
-        self.raw_command('MD01')
-        self.raw_command('MA')
-        for channel in range(1,3):
-            usd = usd + self.raw_command('PM%03d' % channel ) + '\n'
-        for bankid in range(1,11):
-            bankid = self.number_to_letter(bankid)
-            bank = self.raw_command('TA B ' + bankid)
-            usd = usd + 'TGroup,"%s",%d,UNLOCKED' % ( bank, 1 ) + '\n'
-        return usd
-
     def mode(self):
         modeline = self.raw_command('MD')
         return modeline
@@ -431,15 +419,3 @@ if __name__ == '__main__':
                     }    
 
     sprogeny.populate_bank_from_rr(bank_config)
-
-
-#     scanner = BC296D()
-#     scanner.connect()
-#     scanner_info = scanner.raw_command('SI')
-#     print 'line: ', scanner_info
-
-#     print scanner.raw_command('TA B A')
-#     print scanner.mode()
-#     print scanner.dump_usd()
-
-#     scanner.close()
