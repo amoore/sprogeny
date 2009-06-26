@@ -246,9 +246,8 @@ class Sprogeny(dict):
                 if self.verbose >= 1:
                     print "configuring talkgroup %s (%s)" % ( talkgroup, scanner.afs_to_dec(talkgroup) )
                 talkgroup_list = rr.get_trs_talkgroups(sid, '', '', scanner.afs_to_dec(talkgroup))
-                if len(talkgroup_list) != 1:
-                    raise EnvironmentError( 'did not get exactly one talkgroup from rr when we expected to. received: %s'
-                                            % ( len(talkgroup_list) ) )
+                # It's possible that we have more than one result here.
+                # There's no way to decide which we want, though.
                 talkgroup = talkgroup_list.pop()
                 scanlist_id = "%s%s" % ( scanner.number_to_letter(list_counter), talkgroup_counter )
                 scanner.set_talkgroup( bank_id, scanlist_id, talkgroup['tgDec'] )
