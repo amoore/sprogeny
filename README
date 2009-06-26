@@ -1,0 +1,6 @@
+This program allows you to program your police radio scanner with
+frequencies and other information from radioreference.com. I have a
+Uniden BC296D, so I'm starting with support from that. It's written in
+python.
+
+Copyright (c) 2009, Andrew Moore <amoore@mooresystems.com>
