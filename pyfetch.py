@@ -254,10 +254,6 @@ class Sprogeny(dict):
     def populate_bank_from_rr(self, bank_config):
         sid = bank_config['sid']
         bank_id = bank_config['bank']
-        # trs = rr.get_trs_details(sid)
-        # scanner.set_bank_tag(bank_id, trs['sName'])
-        
-        # foo = rr.get_trs_talkgroups(sid, 2691)
 
         for list_counter in range( len(bank_config['id_lists']) ):
             foo = bank_config['id_lists']
