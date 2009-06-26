@@ -88,16 +88,21 @@ class Scanner(dict):
     def dump_to_yaml(self, filename):
         import yaml
 
-        config = []
-        for bank in range(10):
+        config = [{}]
+        for bank_id in range(1,11):
             config.append({})
-            config[bank]['bank'] = bank
-            config[bank]['label'] = self.get_bank_tag(bank)
-            config[bank]['scanlists'] = []
-            for scanlist_id in range(10):
+            config[bank_id]['bank'] = bank_id
+            config[bank_id]['label'] = self.get_bank_tag(bank_id)
+            config[bank_id]['scanlists'] = []
+            for scanlist_id in range(1,11):
                 scanlist = {}
-                scanlist['label'] = self.get_scanlist_tag(bank, scanlist_id)
-                config[bank]['scanlists'].append(scanlist)
+                scanlist['label'] = self.get_scanlist_tag(bank_id, scanlist_id)
+                scanlist['talkgroups'] = []
+                for talkgroup_id in range(1,11):
+                    scanlist['talkgroups'].append( self.get_talkgroup_tag(bank_id, scanlist_id, talkgroup_id) )
+                config[bank_id]['scanlists'].append(scanlist)
+
+                    
 
         stream = file(filename, 'w')
         yaml.dump(config, stream)
@@ -107,25 +112,25 @@ class Scanner(dict):
         return modeline
 
     def number_to_letter(self, number):
-        if number == 0:
+        if number == 1:
             return 'A'
-        elif number == 1:
-            return 'B'
         elif number == 2:
-            return 'C'
+            return 'B'
         elif number == 3:
-            return 'D'
+            return 'C'
         elif number == 4:
-            return 'E'
+            return 'D'
         elif number == 5:
-            return 'F'
+            return 'E'
         elif number == 6:
-            return 'G'
+            return 'F'
         elif number == 7:
-            return 'H'
+            return 'G'
         elif number == 8:
-            return 'I'
+            return 'H'
         elif number == 9:
+            return 'I'
+        elif number == 10:
             return 'J'
         else:
             raise RuntimeError('unable to convert %s to a letter' % ( number ) )
@@ -220,9 +225,10 @@ class BC296D(Scanner):
         return new_talkgroup
 
 
-    def get_talkgroup_tag(self, bank_id, scanlist_id):
-        talkgroupline = self.raw_command('TA I %s %s' % ( self.number_to_letter(bank_id),
-                                                         scanlist_id ) )
+    def get_talkgroup_tag(self, bank_id, scanlist_id, talkgroup_id):
+        talkgroupline = self.raw_command('TA I %s %s%s' % ( self.number_to_letter(bank_id),
+                                                            self.number_to_letter( scanlist_id ),
+                                                            talkgroup_id ) )
         match = re.search("TA\sI\s\w\s\w\d\s(.+)", talkgroupline)
         if match is not None:
             if match.group(1):
@@ -232,16 +238,17 @@ class BC296D(Scanner):
         else:
             return None
 
-    def set_talkgroup_tag(self, bank_id, scanlist_id, talkgroup_tag):
+    def set_talkgroup_tag(self, bank_id, scanlist_id, talkgroup_id, talkgroup_tag):
         talkgroup_tag = talkgroup_tag[0:15].strip()
         if self.verbose >= 1:
-            print 'setting talkgroup tag "%s" on scanlist: %s' % ( talkgroup_tag, scanlist_id )
-        ok = self.raw_command('TA I %s %s %s' % ( self.number_to_letter(bank_id),
-                                                 scanlist_id,
-                                                 talkgroup_tag) )
+            print 'setting talkgroup tag "%s" on scanlist: %s, talkgroup: %s' % ( talkgroup_tag, scanlist_id, talkgroup_id )
+        ok = self.raw_command('TA I %s %s%s %s' % ( self.number_to_letter(bank_id),
+                                                    scanlist_id,
+                                                    talkgroup_id,
+                                                    talkgroup_tag) )
         if ok != 'OK':
             raise EnvironmentError('unable to set_talkgroup_tag')
-        new_talkgroup_tag = self.get_talkgroup_tag(bank_id, scanlist_id)
+        new_talkgroup_tag = self.get_talkgroup_tag(bank_id, scanlist_id, talkgroup_id)
         if new_talkgroup_tag != talkgroup_tag:
             if self.verbose >= 2:
                 print 'old: %s, new: %s' % (talkgroup_tag, new_talkgroup_tag)
@@ -260,15 +267,15 @@ class Sprogeny(dict):
         sid = bank_config['sid']
         bank_id = bank_config['bank']
 
-        for list_counter in range( len(bank_config['id_lists']) ):
+        for scanlist_counter in range( len(bank_config['id_lists']) ):
             foo = bank_config['id_lists']
-            id_list = foo[list_counter]
+            id_list = foo[scanlist_counter + 1]
             if id_list['label'] == '':
                 continue
-            scanner.set_scanlist_tag( bank_id, list_counter, id_list['label'] )
+            scanner.set_scanlist_tag( bank_id, scanlist_counter, id_list['label'] )
             for talkgroup_counter in range( len(id_list['talkgroups']) ):
                 bar = id_list['talkgroups']
-                talkgroup = bar[talkgroup_counter]
+                talkgroup = bar[talkgroup_counter+1]
                 if talkgroup == '':
                     continue
                 if self.verbose >= 1:
@@ -277,8 +284,7 @@ class Sprogeny(dict):
                 # It's possible that we have more than one result here.
                 # There's no way to decide which we want, though.
                 talkgroup = talkgroup_list.pop()
-                scanlist_id = "%s%s" % ( scanner.number_to_letter(list_counter), talkgroup_counter )
-                scanner.set_talkgroup( bank_id, scanlist_id, talkgroup['tgDec'] )
+                scanner.set_talkgroup( bank_id, scanlist_counter, talkgroup_counter, talkgroup['tgDec'] )
                 # scanner.set_talkgroup_tag( bank_id, scanlist_id, talkgroup['tgDescr'] )
                 scanner.set_talkgroup_tag( bank_id, scanlist_id, talkgroup['tgAlpha'] )
                 
@@ -300,7 +306,7 @@ if __name__ == '__main__':
 
     sprogeny = Sprogeny(scanner, rr)
     
-    bank_config = { 'bank' : 0,
+    bank_config = { 'bank' : 1,
                     'sid'  : 366,
                     'id_lists' : [ { 'label' : 'Police Patrol',
                                      'talkgroups' : [ '10-020',
