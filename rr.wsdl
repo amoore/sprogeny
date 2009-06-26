@@ -52,7 +52,7 @@
  </xsd:complexType>
  <xsd:complexType name="TalkgroupCat">
   <xsd:all>
-   <xsd:element name="tgCid" type="xsd:int" documentation="Test Doco"/>
+   <xsd:element name="tgCid" type="xsd:int"/>
    <xsd:element name="sid" type="xsd:int"/>
    <xsd:element name="tgCname" type="xsd:string"/>
    <xsd:element name="tgSort" type="xsd:int"/>
@@ -325,8 +325,8 @@
  <xsd:complexType name="AgencyInfo">
   <xsd:all>
    <xsd:element name="aid" type="xsd:int"/>
-   <xsd:element name="agencyName" type="xsd:string" agencyName="agencyName"/>
-   <xsd:element name="agencyType" type="xsd:string" agencyType="agencyName"/>
+   <xsd:element name="agencyName" type="xsd:string"/>
+   <xsd:element name="agencyType" type="xsd:string"/>
    <xsd:element name="ctid" type="xsd:int"/>
    <xsd:element name="stid" type="xsd:int"/>
    <xsd:element name="lat" type="xsd:decimal"/>
