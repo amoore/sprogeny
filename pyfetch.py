@@ -88,19 +88,20 @@ class Scanner(dict):
     def dump_to_yaml(self, filename):
         import yaml
 
-        config = [{}]
+        config = []
         for bank_id in range(1,11):
-            config.append({})
-            config[bank_id]['bank'] = bank_id
-            config[bank_id]['label'] = self.get_bank_tag(bank_id)
-            config[bank_id]['scanlists'] = []
+            bank = {}
+            bank['bank'] = bank_id
+            bank['label'] = self.get_bank_tag(bank_id)
+            bank['scanlists'] = []
             for scanlist_id in range(1,11):
                 scanlist = {}
                 scanlist['label'] = self.get_scanlist_tag(bank_id, scanlist_id)
                 scanlist['talkgroups'] = []
                 for talkgroup_id in range(1,11):
                     scanlist['talkgroups'].append( self.get_talkgroup_tag(bank_id, scanlist_id, talkgroup_id) )
-                config[bank_id]['scanlists'].append(scanlist)
+                bank['scanlists'].append(scanlist)
+            config.append(bank)
 
                     
 
