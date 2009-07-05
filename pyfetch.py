@@ -99,11 +99,12 @@ class Scanner(dict):
                 scanlist['label'] = self.get_scanlist_tag(bank_id, scanlist_id)
                 scanlist['talkgroups'] = []
                 for talkgroup_id in range(1,11):
-                    scanlist['talkgroups'].append( self.get_talkgroup_tag(bank_id, scanlist_id, talkgroup_id) )
+                    talkgroup = {}
+                    talkgroup['label']     = self.get_talkgroup_tag(bank_id, scanlist_id, talkgroup_id)
+                    talkgroup['talkgroup'] = self.get_talkgroup(bank_id, scanlist_id, talkgroup_id)
+                    scanlist['talkgroups'].append( talkgroup )
                 bank['scanlists'].append(scanlist)
             config.append(bank)
-
-                    
 
         stream = file(filename, 'w')
         yaml.dump(config, stream)
@@ -198,9 +199,10 @@ class BC296D(Scanner):
             raise EnvironmentError('unable to set_scanlist_tag')
         return new_scanlist_tag
 
-    def get_talkgroup(self, bank_id, scanlist_id):
-        talkgroup = self.raw_command('TG %s %s' % ( self.number_to_letter(bank_id),
-                                                    scanlist_id ) )
+    def get_talkgroup(self, bank_id, scanlist_id, talkgroup_position):
+        talkgroup = self.raw_command('TG %s %s%s' % ( self.number_to_letter(bank_id),
+                                                      scanlist_id,
+                                                      talkgroup_position) )
         match = re.search("TG\s\w\s\w\d\s(.+)", talkgroup)
         if match is not None:
             if match.group(1):
@@ -286,7 +288,6 @@ class Sprogeny(dict):
                 # There's no way to decide which we want, though.
                 talkgroup = talkgroup_list.pop()
                 scanner.set_talkgroup( bank_id, scanlist_counter, talkgroup_counter, talkgroup['tgDec'] )
-                # scanner.set_talkgroup_tag( bank_id, scanlist_id, talkgroup['tgDescr'] )
                 scanner.set_talkgroup_tag( bank_id, scanlist_id, talkgroup['tgAlpha'] )
                 
             
